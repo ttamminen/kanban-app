@@ -1,35 +1,32 @@
 import uuid from 'node-uuid';
 import React from 'react';
 import Notes from './Notes.jsx';
+import NoteActions from '../actions/NoteActions';
+import NoteStore from '../stores/NoteStore';
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
 
-    const notes = this.props.items;
-
-    this.state = {
-      notes: [
-        {
-          id: uuid.v4(),
-          task: 'Learn Webpack'
-        },
-        {
-          id: uuid.v4(),
-          task: 'Learn React'
-        },
-        {
-          id: uuid.v4(),
-          task: 'Do laundry'
-        }
-      ]
-    };
-
-    this.findNote = this.findNote.bind(this);
-    this.addNote = this.addNote.bind(this);
-    this.editNote = this.editNote.bind(this);
-    this.deleteNote = this.deleteNote.bind(this);
+    // We have to bind the context of `storeChanged`
+    // explicitly so that `this` will point at the `App`
+    // instance. You'll be seeing this pattern a lot.
+    this.storeChanged = this.storeChanged.bind(this);
+    this.state = NoteStore.getState();
   } 
+
+  componentDidMount() {
+    NoteStore.listen(this.storeChanged);
+  }
+  componentWillUnmount() {
+    NoteStore.unlisten(this.storeChanged);
+  }
+  storeChanged(state) {
+    // Without proper `bind`, `this` wouldn't
+    // point at the right context (defaults to `window`
+    // in browser environment)
+    this.setState(state);
+  }
 
   render() {
     const notes = this.state.notes;
@@ -43,40 +40,14 @@ export default class App extends React.Component {
   }
 
   addNote() {
-    this.setState({
-      notes: this.state.notes.concat([{
-        id: uuid.v4(),
-        task: 'New task'
-      }])
-    });
+    NoteActions.create({task: 'New task'});
   }
-
   editNote(id, task) {
-    let notes = this.state.notes;
-    const noteIndex = this.findNote(id);
-
-    if(noteIndex < 0) {
-      return;
-    }
-
-    notes[noteIndex].task = task;
-
-    this.setState({notes});
+    NoteActions.update({id, task});
   }
-
   deleteNote(id) {
-    const notes = this.state.notes;
-    const noteIndex = this.findNote(id);
-
-    if(noteIndex < 0) {
-      return;
-    }
-
-    this.setState({
-      notes: notes.slice(0, noteIndex).concat(notes.slice(noteIndex + 1))
-    });
+    NoteActions.delete(id);
   }
-
   findNote(id) {
     const notes = this.state.notes;
     const noteIndex = notes.findIndex((note) => note.id === id);
@@ -86,5 +57,5 @@ export default class App extends React.Component {
     }
 
     return noteIndex;
-  }
+  }  
 }
