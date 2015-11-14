@@ -73,7 +73,7 @@ export default class App extends React.Component {
     }
 
     this.setState({
-      notes: notes.slice(0, noteIndex).concat(notes.slice(noteIndex + 1));
+      notes: notes.slice(0, noteIndex).concat(notes.slice(noteIndex + 1))
     });
   }
 
