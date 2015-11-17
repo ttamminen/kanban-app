@@ -1,8 +1,8 @@
 import 'array.prototype.findindex';
-
 import './main.css';
 
 import React from 'react';
+import ReactDOM from 'react-dom';
 import App from './components/App.jsx';
 import alt from './libs/alt';
 import storage from './libs/storage';
@@ -16,5 +16,5 @@ function main() {
 
   document.body.appendChild(app);
 
-  React.render(<App />, app);
+  ReactDOM.render(<App />, app);
 }
